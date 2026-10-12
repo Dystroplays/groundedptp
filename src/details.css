@@ -1,0 +1,78 @@
+.adherence-chart {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 12px;
+  margin: 25px 0 16px;
+  text-align: center;
+}
+.adherence-chart > div > span {
+  font-size: 11px;
+  color: var(--muted);
+}
+.adherence-track {
+  height: 90px;
+  display: flex;
+  align-items: flex-end;
+  border-bottom: 1px solid var(--line);
+  margin: 8px 0;
+  background: #e6dfd266;
+}
+.adherence-track > div {
+  width: 100%;
+  background: var(--forest);
+  min-height: 3px;
+  border-radius: 3px 3px 0 0;
+}
+.adherence-chart small {
+  font-size: 10px;
+  color: var(--muted);
+}
+.quiz-editor,
+.sequence-editor {
+  padding: 20px 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+}
+.quiz-editor h3 {
+  margin-bottom: 20px;
+}
+.quiz-editor .button {
+  margin-bottom: 20px;
+}
+.team-main .library-layout {
+  grid-template-columns: minmax(220px, 0.7fr) minmax(320px, 1.3fr);
+}
+.disclosure > p {
+  margin: 18px 0;
+}
+.disclosure > .field {
+  margin-top: 20px;
+}
+.admin-grid .day-picker {
+  margin-bottom: 20px;
+}
+.patient-aside form .button {
+  max-width: 100%;
+}
+.main:not(.team-main) .pt-note p {
+  font-size: 16px;
+}
+.main:not(.team-main) .exercise-row p {
+  font-size: 14px;
+}
+@media (max-width: 900px) {
+  .team-main .library-layout {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 650px) {
+  .adherence-chart {
+    gap: 7px;
+  }
+  .adherence-chart small {
+    font-size: 9px;
+  }
+  .adherence-track {
+    height: 70px;
+  }
+}

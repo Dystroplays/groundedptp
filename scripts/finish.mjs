@@ -1,0 +1,21 @@
+import { readFileSync, writeFileSync, mkdirSync, copyFileSync } from 'node:fs';
+function edit(path,from,to){let s=readFileSync(path,'utf8');if(!s.includes(from))throw new Error(`Missing target: ${path} ${from.slice(0,60)}`);writeFileSync(path,s.replace(from,to));}
+mkdirSync('docs',{recursive:true});copyFileSync('node_modules/@fontsource/dm-sans/LICENSE','docs/FONT-LICENSE.txt');
+edit('convex/integrations.ts',"import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';","import { renderDocument } from './pdf';");
+let s=readFileSync('convex/integrations.ts','utf8');const start=s.indexOf('      const pdf=await PDFDocument.create()'),end=s.indexOf('      await ctx.runMutation(internal.documents.attach',start);if(start<0||end<0)throw Error('Missing document block');s=s.slice(0,start)+"      const bytes=await renderDocument(x.kind,p.name,record.lines),fileId=await ctx.storage.store(new Blob([new Uint8Array(bytes)],{type:'application/pdf'}));\n"+s.slice(end);writeFileSync('convex/integrations.ts',s);
+edit('convex/documents.ts',"    await audit(ctx,'document_job','export_read','clinicalNotes',n._id);","    if(kind==='superbill'&&!n.signedAt)continue;\n    const author=await ctx.db.get(n.authorId);\n    const appointment=n.appointmentId?await ctx.db.get(n.appointmentId):null;\n    lines.push(`Author: ${author?.name??n.authorId}`, `Service date: ${appointment?new Date(appointment.startsAt).toISOString():'Not linked to a visit'}`);\n    await audit(ctx,'document_job','export_read','clinicalNotes',n._id);");
+edit('convex/documents.ts',"  const lines:string[]=[];","  const patient=await ctx.db.get(patientId);\n  if(!patient)throw new Error('Patient unavailable.');\n  const lines:string[]=[`Patient: ${patient.name}`];\n  if(kind==='chart_export')lines.push(`Patient record: ${JSON.stringify(patient)}`);");
+edit('convex/documents.ts',"['measurements','visitSummaries','programs','appointments','messages']","['measurements','visitSummaries','programs','appointments','messages','sessionLogs','sessionAssignments','payments','memberships','videoAssignments']");
+edit('convex/admin.ts',"import { internal } from './_generated/api';","import { internal } from './_generated/api';\nimport { localDate } from '../src/domain';");
+edit('convex/admin.ts',"if (id) { const old = await ctx.db.get(id as any);", "if (id) { if(!ctx.db.normalizeId(table,id))throw new Error('Invalid catalog identifier.'); const old = await ctx.db.get(id as any);");
+edit('convex/admin.ts',"const d = new Date(e.at); d.setUTCDate", "const d = new Date(`${localDate(e.at)}T12:00:00Z`); d.setUTCDate");
+edit('convex/admin.ts',"p.status === 'accepted'", "['accepted','completed'].includes(p.status)");
+// Preserve the historical installment proportion after discharge.
+s=readFileSync('convex/admin.ts','utf8').replaceAll("p.status === 'accepted'", "['accepted','completed'].includes(p.status)");writeFileSync('convex/admin.ts',s);
+edit('src/store.tsx',"metrics:any};","metrics:any;cohort:'all'|'complete'|'incomplete';setCohort:(value:'all'|'complete'|'incomplete')=>void};");
+edit('src/store.tsx',"  const[data,setData]=useState(createSample)","  const[cohort,setCohort]=useState<'all'|'complete'|'incomplete'>('all');\n  const[data,setData]=useState(createSample)");
+edit('src/store.tsx',"metrics:{patients:4", "cohort,setCohort,metrics:{patients:4");
+edit('src/store.tsx',"  const viewer=useQuery(api.portal.viewer)","  const[cohort,setCohort]=useState<'all'|'complete'|'incomplete'>('all');\n  const viewer=useQuery(api.portal.viewer)");
+edit('src/store.tsx',"isAdmin?{cohort:'all'}:'skip'","isAdmin?{cohort}:'skip'");
+edit('src/store.tsx',"clearError:()=>setError(''),metrics};","clearError:()=>setError(''),metrics,cohort,setCohort};");
+edit('src/team.tsx',"description=\"Activity recorded in the portal, starting with the first patient.\"/>","description=\"Activity recorded in the portal, starting with the first patient.\"/><Field label=\"Video completion cohort\"><select value={p.cohort} onChange={e=>p.setCohort(e.target.value as any)}><option value=\"all\">All patients</option><option value=\"complete\">Completed before evaluation</option><option value=\"incomplete\">Incomplete before evaluation</option></select></Field>{p.demo&&<p className=\"muted\">Sample counts illustrate this report. Cohort filtering uses live evaluation records when connected.</p>}");

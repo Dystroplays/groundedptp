@@ -1,0 +1,448 @@
+/* Addendum 1: proposal builder (T4), presentation mode (T3), and Your plan (P11). */
+.ordinal {
+  display: block;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.proposal-sections {
+  display: grid;
+}
+.proposal-section {
+  display: grid;
+  gap: 12px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--line);
+}
+.proposal-section:first-child {
+  padding-top: 8px;
+}
+.proposal-focus .small-label {
+  display: block;
+  color: var(--muted);
+}
+.proposal-outcomes,
+.proposal-phases,
+.included-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+.proposal-outcomes li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+}
+.proposal-outcomes small,
+.proposal-phases small {
+  display: block;
+  color: var(--muted);
+  font-size: 14px;
+}
+.proposal-phases li {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.proposal-phases li:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+.included-list li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.included-list svg {
+  color: var(--sage);
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.investment {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 32px;
+  margin: 8px 0 20px;
+}
+.investment-price {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+.investment .price {
+  font-family: Sora, sans-serif;
+  font-size: clamp(34px, 5vw, 48px);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  color: var(--rust);
+  line-height: 1.1;
+}
+.option-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.option-toggle .choice span {
+  display: grid;
+}
+.option-toggle small {
+  color: var(--muted);
+}
+.schedule {
+  margin: 0;
+  display: grid;
+  gap: 6px;
+}
+.schedule div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+.schedule dt {
+  color: var(--muted);
+}
+.schedule dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+}
+.schedule dd small {
+  font-weight: 400;
+  color: var(--muted);
+}
+
+/* T4 builder */
+.template-picker {
+  display: grid;
+  gap: 12px;
+  max-width: 640px;
+  margin-bottom: 24px;
+}
+.builder-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 400px);
+  gap: 32px;
+  align-items: start;
+}
+.builder-form {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.builder-group {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 0;
+  padding: 20px 0 8px;
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.builder-group legend {
+  font-family: Sora, sans-serif;
+  font-weight: 600;
+  color: var(--forest);
+  padding: 0 8px 0 0;
+}
+.builder-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)) 44px;
+  gap: 10px;
+  align-items: end;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed var(--line);
+}
+.icon-button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.icon-button:hover {
+  color: var(--forest);
+  border-color: var(--forest);
+}
+.builder-preview {
+  position: sticky;
+  top: 24px;
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+  padding: 24px;
+  background: var(--sand);
+  border-radius: 5px;
+}
+.builder-preview .proposal-section h2 {
+  font-size: 19px;
+}
+.produce-bar {
+  display: grid;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.missing {
+  padding: 14px 18px;
+  background: #eee6d4;
+  border: 1px solid #d9c9a5;
+  border-radius: 4px;
+  font-size: 14px;
+}
+.missing ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+.proposal-row {
+  align-items: flex-start;
+}
+.proposal-status.accepted,
+.proposal-status.completed {
+  background: #e5e9dc;
+  color: #465f3e;
+}
+.proposal-status.declined {
+  background: #f2e0d5;
+  color: #914521;
+  border-color: #d8b9a2;
+}
+.proposal-status.produced,
+.proposal-status.scope_confirmed,
+.proposal-status.price_revealed,
+.proposal-status.sent_to_portal,
+.proposal-status.draft {
+  background: #eee6d4;
+  color: #7b6029;
+  border-color: #d9c9a5;
+}
+
+/* T3 presentation mode: full screen, patient-facing */
+.presentation {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  background: var(--cream);
+  overflow: auto;
+}
+.presentation-top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 24px;
+}
+.presentation-dismiss {
+  margin-left: 8px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  vertical-align: middle;
+}
+.presentation-exit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.presentation-body {
+  flex: 1;
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 24px 24px 120px;
+}
+.presentation-section {
+  display: grid;
+  gap: 20px;
+  font-size: 19px;
+}
+.presentation-section h1,
+.presentation-wait h1 {
+  font-size: clamp(30px, 4.4vw, 46px);
+}
+.presentation-section p {
+  max-width: 60ch;
+}
+.presentation-section .ordinal {
+  font-size: 17px;
+}
+.presentation-section .proposal-outcomes,
+.presentation-section .proposal-phases {
+  gap: 20px;
+}
+.presentation-section .proposal-outcomes strong,
+.presentation-section .proposal-phases h3 {
+  font-size: 21px;
+}
+.presentation-section .proposal-outcomes small,
+.presentation-section .proposal-phases small,
+.presentation-section .proposal-phases p {
+  font-size: 17px;
+}
+.presentation-wait {
+  display: grid;
+  gap: 16px;
+  justify-items: start;
+  padding-top: 10vh;
+  color: var(--forest);
+}
+.presentation-foot {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 24px;
+  background: var(--cream);
+  border-top: 1px solid var(--line);
+}
+.step-count {
+  color: var(--forest);
+  font-size: 18px;
+}
+.step-spacer {
+  min-width: 110px;
+}
+.buy-in {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.button.big-choice {
+  min-height: 76px;
+  font-size: 19px;
+  justify-content: center;
+}
+.buy-in-done {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--sage);
+  font-weight: 600;
+}
+.presentation-corner {
+  position: fixed;
+  right: 20px;
+  bottom: 92px;
+  display: grid;
+  justify-items: end;
+  gap: 10px;
+  z-index: 101;
+}
+.hold-button {
+  position: relative;
+  overflow: hidden;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px dashed var(--line);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+.hold-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.hold-button > span:last-child {
+  position: relative;
+}
+.hold-fill {
+  position: absolute;
+  inset: 0;
+  width: 0;
+  background: var(--sand);
+}
+.hold-button.is-holding .hold-fill {
+  width: 100%;
+  transition: width 1s linear;
+}
+.closer-options {
+  font-size: 13px;
+  color: var(--muted);
+  text-align: right;
+}
+.closer-options summary {
+  cursor: pointer;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+.closer-options[open] {
+  padding: 14px;
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  text-align: left;
+  max-width: 320px;
+}
+.closer-form {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+/* P11 */
+.your-plan {
+  max-width: 860px;
+}
+
+@media (max-width: 1150px) {
+  .builder-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .builder-preview {
+    position: static;
+    max-height: none;
+  }
+}
+@media (max-width: 650px) {
+  .investment,
+  .buy-in,
+  .option-toggle {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .proposal-phases li {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+  .proposal-outcomes li {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .proposal-outcomes li .ordinal {
+    grid-column: 2;
+  }
+  .presentation-body {
+    padding: 16px 16px 140px;
+  }
+  .presentation-foot {
+    padding: 12px 16px;
+  }
+  .presentation-corner {
+    right: 16px;
+  }
+  .builder-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
