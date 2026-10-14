@@ -117,7 +117,7 @@ export const defer = internalMutation({
 });
 export const context = internalQuery({
   args: { id: v.id("integrationJobs") },
-  handler: async (ctx, { id }) => {
+  handler: async (ctx, { id }):Promise<any> => {
     const job = await ctx.db.get(id);
     if (!job) return null;
     const patient = job.patientId ? await ctx.db.get(job.patientId) : null;

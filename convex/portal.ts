@@ -29,7 +29,7 @@ export const viewer = query({
 });
 export const snapshot = query({
   args: { patientId: v.optional(v.id("patients")) },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args):Promise<any> => {
     const a = await identity(ctx),
       id = args.patientId ?? a.patient?._id;
     if (!id) return null;
@@ -62,10 +62,11 @@ export const snapshot = query({
     }));
     const messages = await forPatient(ctx, "messages", id);
     const saves = await forPatient(ctx, "saves", id);
-    const pt = p.ptId ? await ctx.db.get(p.ptId) : null;
+    const pt:any = p.ptId ? await ctx.db.get(p.ptId) : null;
     const base = {
       patient,
       ptName: pt?.name ?? "Your PT",
+      ptPhotoUrl:pt?.photoId?await ctx.storage.getUrl(pt.photoId):null,
       appointments,
       videos,
       assignments,
@@ -171,6 +172,8 @@ export const dashboard = query({
         p.ptId === a.staff._id,
     );
     const ids = new Set(patients.map((p) => p._id));
+    const referrals=await ctx.db.query('referrals').collect();
+    const referralLeads=a.roles.some((r:string)=>['admin','sdr'].includes(r))?await Promise.all(referrals.map(async r=>({ ...r,referrerName:(await ctx.db.get(r.referrerId))?.name??'Patient'}))):[];
     return {
       patients: patients.map((p) => ({
         _id: p._id,
@@ -191,6 +194,8 @@ export const dashboard = query({
       assignments: (await ctx.db.query("videoAssignments").collect()).filter(
         (s) => ids.has(s.patientId),
       ),
+      referralLeads,
+      unmatchedReferrals:(await ctx.db.query('integrationJobs').collect()).filter(j=>j.kind==='referral_lead'&&j.status!=='done'&&j.status!=='cancelled').map(j=>({id:j._id,referralId:j.payload.referralId,status:j.status,attempts:j.attempts,error:j.error,failureCategory:j.failureCategory})),
       staff: (await ctx.db.query("staff").collect()).map((s) => ({
         _id: s._id,
         name: s.name,
@@ -207,7 +212,7 @@ export const chart = mutation({
     const notes = await forPatient(ctx, "clinicalNotes", patientId);
     for (const n of notes)
       await audit(ctx, a.userId, "read", "clinicalNotes", n._id);
-    return Promise.all(notes.map(async(n:any)=>({...n,authorName:(await ctx.db.get(n.authorId))?.name??'Staff',addenda:await Promise.all(n.addenda.map(async(d:any)=>({...d,authorName:(await ctx.db.get(d.authorId))?.name??'Staff'})))})));
+    return Promise.all(notes.map(async(n:any)=>{const author:any=await ctx.db.get(n.authorId);return {...n,authorName:author?.name??'Staff',addenda:await Promise.all(n.addenda.map(async(d:any)=>{const addendumAuthor:any=await ctx.db.get(d.authorId);return {...d,authorName:addendumAuthor?.name??'Staff'};}))};}));
   },
 });
 const operations = [
@@ -274,8 +279,8 @@ export const command = mutation({
         throw new Error("Enter a valid number.");
       return value;
     };
-    const owned = async (id: string) => {
-      const record = await ctx.db.get(id as any);
+    const owned = async (id: string):Promise<any> => {
+      const record:any = await ctx.db.get(id as any);
       if (!record || record.patientId !== patientId)
         throw new Error("Record unavailable.");
       return record;
@@ -327,7 +332,7 @@ export const command = mutation({
       const assignment = await owned(x.id);
       if (assignment.unlockedAt === undefined)
         throw new Error("Complete the previous video first.");
-      const video = await ctx.db.get(assignment.videoId);
+      const video:any = await ctx.db.get(assignment.videoId);
       if (operation === "startVideo") {
         await ctx.db.patch(assignment._id, { lastProgressAt: now });
         await event(ctx, patientId, "video_started", { videoId: video!._id });
@@ -412,7 +417,7 @@ export const command = mutation({
     ) {
       const session = await owned(x.id);
       if (session.completedAt) throw new Error("This session is complete.");
-      const program = await ctx.db.get(session.programId);
+      const program:any = await ctx.db.get(session.programId);
       const weekday = new Date(`${session.date}T12:00:00Z`).getUTCDay();
       const ids = program!.items
         .filter((i: any) => i.days.includes(weekday))

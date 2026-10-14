@@ -250,7 +250,7 @@ describe("plan of care proposal flow", () => {
     await c.act(c.blake, "revealPrice", { id });
     const after = await c.blake.query(api.proposals.presentation, { patientId: c.patientId });
     expect(after.proposal.priceCents).toBe(440000);
-    expect(after.investment.installments.total).toBe(506000);
+    expect(after.investment!.installments.total).toBe(506000);
     const events = await c.t.run((ctx) => ctx.db.query("events").collect());
     expect(events.map((e) => e.type)).toEqual(
       expect.arrayContaining(["proposal_produced", "scope_questions", "scope_confirmed", "price_revealed"]),

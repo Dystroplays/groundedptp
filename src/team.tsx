@@ -219,6 +219,7 @@ export function TeamDashboard({
             <h2>Your patients, at a glance</h2>
             <PatientTable patients={d.patients} />
           </section>
+          {p.viewer.roles.some((r:string)=>['admin','sdr'].includes(r))&&<section className="section"><div className="section-top"><div><h2>Referral leads</h2><p className="muted">Attribution and GHL matching stay visible until the outcome is recorded.</p></div></div>{d.referralLeads?.length?d.referralLeads.map((r:any)=><div className="list-row" key={r._id}><div><strong>{r.friendName}</strong><p>Referred by {r.referrerName} · {r.friendContact}</p>{d.unmatchedReferrals?.some((j:any)=>j.referralId===r._id)&&<small className="inline-error">GHL match needs attention</small>}</div><Field label={`Outcome for ${r.friendName}`}><select value={r.status} onChange={e=>p.adminCommand('operation',{patientId:r.referrerId,operation:'referral_outcome',payload:{id:r._id,status:e.target.value}})}><option value="invited">New</option><option value="contacted">Contacted</option><option value="duplicate">Duplicate</option><option value="ineligible">Ineligible</option><option value="booked" disabled>Booked</option><option value="started_plan" disabled>Started plan</option></select></Field></div>):<Empty title="No referral leads waiting">New public referrals will appear here for the booking team.</Empty>}</section>}
         </>
       )}
     </>
@@ -1081,11 +1082,14 @@ export function Admin() {
             <h2>Your care team</h2>
             {d.staff.map((s: any) => (
               <div className="list-row" key={s._id}>
-                <div>
+                <div className="staff-identity">
+                  {s.photoUrl?<img className="staff-photo" src={s.photoUrl} alt="" />:<span className="table-avatar">{s.name.split(/\s+/).map((n:string)=>n[0]).slice(0,2).join('')}</span>}
+                  <div>
                   <strong>{s.name}</strong>
                   <p>{s.roles.join(", ")}</p>
+                  </div>
                 </div>
-                <Status value={s.active ? "active" : "inactive"} />
+                <div className="button-row"><label className="button outline small-button">Upload photo<input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" onChange={async e=>{const file=e.target.files?.[0];if(file)await p.adminCommand('staffPhoto',{staffId:s._id,file});e.currentTarget.value='';}} /></label><Status value={s.active ? "active" : "inactive"} /></div>
               </div>
             ))}
           </section>

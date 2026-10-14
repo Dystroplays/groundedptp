@@ -76,3 +76,4 @@
     height: 70px;
   }
 }
+.staff-identity{display:flex;align-items:center;gap:12px}.staff-photo{width:44px;height:44px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}

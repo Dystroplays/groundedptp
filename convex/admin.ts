@@ -21,7 +21,7 @@ export const overview = query({
       sequences: await ctx.db.query("sequences").collect(),
       exercises: await ctx.db.query("exercises").collect(),
       templates: await ctx.db.query("proposalTemplates").collect(),
-      staff: await ctx.db.query("staff").collect(),
+      staff: await Promise.all((await ctx.db.query("staff").collect()).map(async s=>({...s,photoUrl:s.photoId?await ctx.storage.getUrl(s.photoId):null}))),
       syncErrors: jobs
         .filter(
           (j) =>
@@ -163,7 +163,7 @@ export const catalog = mutation({
     )
       throw new Error("Enter an exercise name and cue.");
     if (table === "quizzes") {
-      const video = await ctx.db.get(data.videoId);
+      const video:any = await ctx.db.get(data.videoId);
       if (!video) throw new Error("Choose an existing video.");
       if (
         !data.questions?.length ||
@@ -230,7 +230,7 @@ export const catalog = mutation({
     if (id) {
       if (!ctx.db.normalizeId(table, id))
         throw new Error("Invalid catalog identifier.");
-      const old = await ctx.db.get(id as any);
+      const old:any = await ctx.db.get(id as any);
       if (!old) throw new Error("Record unavailable.");
       await ctx.db.replace(id as any, data);
     } else id = await ctx.db.insert(table, data);
@@ -286,6 +286,16 @@ export const staff = mutation({
         await ctx.db.patch(session._id, { expirationTime: Date.now() });
     await audit(ctx, a.userId, "staff_updated", "staff", id);
   },
+});
+export const staffPhotoUpload = mutation({
+  args:{},handler:async(ctx)=>{await admin(ctx);return ctx.storage.generateUploadUrl();}
+});
+export const saveStaffPhoto = mutation({
+  args:{staffId:v.id('staff'),storageId:v.id('_storage')},handler:async(ctx,{staffId,storageId})=>{
+    const a=await admin(ctx),staff=await ctx.db.get(staffId);if(!staff)throw new Error('Staff member unavailable.');
+    const meta=await ctx.db.system.get(storageId);if(!meta||!['image/jpeg','image/png','image/webp'].includes(meta.contentType??'')||meta.size>5_000_000)throw new Error('Choose a JPG, PNG, or WebP photo under 5 MB.');
+    const old=staff.photoId;await ctx.db.patch(staffId,{photoId:storageId});await audit(ctx,a.userId,'staff_photo_updated','staff',staffId);if(old)await ctx.storage.delete(old);
+  }
 });
 export const replay = mutation({
   args: { id: v.id("integrationJobs") },

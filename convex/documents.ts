@@ -99,8 +99,8 @@ export const source = internalMutation({
     if (kind === "chart_export" || kind === "superbill")
       for (const n of await forPatient(ctx, "clinicalNotes", patientId)) {
         if (kind === "superbill" && !n.signedAt) continue;
-        const author = await ctx.db.get(n.authorId);
-        const appointment = n.appointmentId
+        const author:any = await ctx.db.get(n.authorId);
+        const appointment:any = n.appointmentId
           ? await ctx.db.get(n.appointmentId)
           : null;
         lines.push(
@@ -122,7 +122,7 @@ export const source = internalMutation({
             `Plan: ${n.plan}`,
           );
           for (const a of n.addenda) {
-            const addendumAuthor=await ctx.db.get(a.authorId);
+            const addendumAuthor:any=await ctx.db.get(a.authorId);
             lines.push(
               `Addendum ${new Date(a.at).toISOString()} by ${addendumAuthor?.name??a.authorId}: ${a.body}`,
             );

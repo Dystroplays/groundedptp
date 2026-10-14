@@ -599,7 +599,7 @@ export function LiveProvider({ children }: { children: ReactNode }) {
   const data = useQuery(
     api.portal.snapshot,
     viewer && !viewer.presentationPatientId && (selected || viewer.patientId)
-      ? { patientId: selected ?? viewer.patientId }
+      ? { patientId: (selected ?? viewer.patientId) as any }
       : "skip",
   );
   const dashboard = useQuery(api.portal.dashboard, staff ? {} : "skip");
@@ -609,11 +609,11 @@ export function LiveProvider({ children }: { children: ReactNode }) {
   const [proposalView, watchProposal] = useState<ProposalView>(null);
   const builder = useQuery(
       api.proposals.builder,
-      proposalView === "builder" && selected ? { patientId: selected } : "skip",
+      proposalView === "builder" && selected ? { patientId: selected as any } : "skip",
     ),
     presentation = useQuery(
       api.proposals.presentation,
-      proposalView === "present" && selected ? { patientId: selected } : "skip",
+      proposalView === "present" && selected ? { patientId: selected as any } : "skip",
     ),
     proposalMutation = useMutation(api.proposals.act);
   const mutate = useMutation(api.portal.command),
@@ -624,6 +624,8 @@ export function LiveProvider({ children }: { children: ReactNode }) {
     saveSetting = useMutation(api.admin.saveSetting),
     catalog = useMutation(api.admin.catalog),
     saveStaff = useMutation(api.admin.staff),
+    staffPhotoUpload = useMutation(api.admin.staffPhotoUpload),
+    saveStaffPhoto = useMutation(api.admin.saveStaffPhoto),
     replay = useMutation(api.admin.replay),
     intake = useMutation(api.operations.intake),
     operationUpdate = useMutation(api.operations.update);
@@ -637,8 +639,8 @@ export function LiveProvider({ children }: { children: ReactNode }) {
     select,
     command: async (operation, payload = {}) => {
       try {
-        return await mutate({
-          patientId: selected ?? viewer.patientId,
+        return await (mutate as any)({
+          patientId: selected ?? viewer?.patientId,
           operation,
           payload,
         });
@@ -649,9 +651,9 @@ export function LiveProvider({ children }: { children: ReactNode }) {
     },
     proposal: async (operation, payload = {}) => {
       try {
-        if (['updateOffer','acceptTerms','approveInstallments'].includes(operation)) await cancelCheckout({patientId:selected??viewer.patientId,planId:payload.id});
-        return await proposalMutation({
-          patientId: selected ?? viewer.patientId,
+        if (['updateOffer','acceptTerms','approveInstallments'].includes(operation)) await cancelCheckout({patientId:(selected??viewer?.patientId) as any,planId:payload.id});
+        return await (proposalMutation as any)({
+          patientId: selected ?? viewer?.patientId,
           operation,
           payload,
         });
@@ -666,9 +668,9 @@ export function LiveProvider({ children }: { children: ReactNode }) {
     setStage: () => {},
     switchRole: () => {},
     signOut,
-    fetchChart: () => chart({ patientId: selected ?? viewer.patientId }),
+    fetchChart: () => chart({ patientId: (selected ?? viewer?.patientId) as any }),
     download: async (id) => {
-      const file = await document({ id });
+      const file = await document({ id:id as any });
       const url = URL.createObjectURL(
         new Blob([file.bytes], { type: "application/pdf" }),
       );
@@ -679,8 +681,8 @@ export function LiveProvider({ children }: { children: ReactNode }) {
       URL.revokeObjectURL(url);
     },
     checkout: async (kind, id, deliver = "redirect") => {
-      const url = await checkoutAction({
-        patientId: selected ?? viewer.patientId,
+      const url = await (checkoutAction as any)({
+        patientId: selected ?? viewer?.patientId,
         kind,
         id,
         deliver,
@@ -689,7 +691,7 @@ export function LiveProvider({ children }: { children: ReactNode }) {
     },
     adminData,
     adminCommand: async (kind, args) =>
-      kind === "intake"
+      kind === 'staffPhoto' ? (async()=>{const url=await staffPhotoUpload({});const response=await fetch(url,{method:'POST',headers:{'Content-Type':args.file.type},body:args.file});if(!response.ok)throw new Error('Photo upload failed.');const {storageId}=await response.json();return saveStaffPhoto({staffId:args.staffId,storageId});})() : kind === "intake"
         ? intake(args)
         : kind === "operation"
           ? operationUpdate(args)
@@ -718,10 +720,10 @@ export function PresentationProvider({ patientId, children }: { patientId: strin
   useEffect(() => {
     let active = true;
     setReady(false);
-    lock({ patientId }).then(() => { if (active) setReady(true); }).catch(e => { if (active) setError(e.message); });
+    lock({ patientId:patientId as any }).then(() => { if (active) setReady(true); }).catch(e => { if (active) setError(e.message); });
     return () => { active = false; };
   }, [patientId, lock]);
-  const presentation = useQuery(api.proposals.presentation, ready ? { patientId } : 'skip');
+  const presentation = useQuery(api.proposals.presentation, ready ? { patientId:patientId as any } : 'skip');
   const unavailable = async (): Promise<never> => { throw new Error('Staff sign-in required'); };
   const value: Store = {
     demo: false, selected: patientId, select: () => {}, viewer: null, data: null, dashboard: null,
@@ -730,11 +732,11 @@ export function PresentationProvider({ patientId, children }: { patientId: strin
     cohort: 'all', setCohort: () => {}, command: unavailable, adminCommand: unavailable,
     fetchChart: unavailable, download: unavailable,
     proposal: async (operation, payload = {}) => {
-      try { if(['acceptTerms','approveInstallments'].includes(operation)) await cancelCheckout({patientId,planId:payload.id}); return await act({ patientId, operation, payload }); }
+      try { if(['acceptTerms','approveInstallments'].includes(operation)) await cancelCheckout({patientId:patientId as any,planId:payload.id}); return await (act as any)({ patientId, operation, payload }); }
       catch (e) { setError((e as Error).message); throw e; }
     },
     checkout: async (kind, id, deliver = 'redirect') => {
-      try { const url = await checkout({ patientId, kind, id, deliver }); if (deliver === 'redirect') window.location.assign(url); }
+      try { const url = await (checkout as any)({ patientId, kind, id, deliver }); if (deliver === 'redirect') window.location.assign(url); }
       catch (e) { setError((e as Error).message); throw e; }
     },
   };

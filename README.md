@@ -8,10 +8,12 @@ Requires Node 22.12+ and npm.
 
 ```powershell
 npm ci
-npm run dev
+npm run dev -- --mode test --port 5174
 ```
 
-Open **http://127.0.0.1:5173**. With no `VITE_CONVEX_URL`, the app runs an explicitly labelled sample experience. Its data stays in React memory and resets on refresh. Switch between patient stages and the team console using the preview bar. Linda's record is editable; other sample names illustrate the team queue. Payments and real email delivery are unavailable in this mode.
+Open **http://127.0.0.1:5174**. Test mode deliberately disables the configured Convex URL and runs an explicitly labelled sample experience. Its data stays in React memory and resets on refresh. Switch between patient stages and the team console using the preview bar. Linda's record is editable; other sample names illustrate the team queue. Payments and real email delivery are unavailable in this mode.
+
+To run the UI against the connected Convex staging deployment instead, use `npm run dev` and open **http://127.0.0.1:5173**. Staging sign-in and provider delivery require the matching Convex environment configuration.
 
 Patient navigation: Today, Progress, Messages, More (Your plan, Payments, Refer a friend). Staff navigation: Dashboard, Patients, Evaluations, Admin. Admin includes content (including condition templates), clinic settings, staff access, integration errors, release gates, and metrics.
 
@@ -26,7 +28,7 @@ Patient navigation: Today, Progress, Messages, More (Your plan, Payments, Refer 
 5. Configure Paubox and request a sign-in link. Tokens are carried in the URL fragment, cleared from the address bar, and exchanged only after the user presses Continue. Unknown inboxes receive the same UI response and cannot create patient records.
 6. Configure Stripe test mode, GHL staging workflows, captioned Mux playback IDs, clinic details and content. See [integration contracts](docs/INTEGRATIONS.md). Re-run the staging acceptance gates before enabling any production flag.
 
-No hosted Convex project, provider credentials, domain, or production deployment has been configured by this implementation. Local tests use Convex's test harness and fake browser data; they do not certify provider integration.
+The isolated Convex staging deployment is connected at `posh-parrot-426`. The current Vercel site must be redeployed before it represents this source revision. Paubox, GHL, Mux, and complete Stripe sandbox rehearsals remain staging gates. Local tests use Convex's test harness and fake browser data; they do not certify provider integration.
 
 ## Verify
 
@@ -41,6 +43,8 @@ npm run build
 Vitest covers money, Central time, rule evaluation, access boundaries, session expiry/revocation, magic-link expiry/reuse/cross-device exchange, chart integrity, program version pinning, save closure, webhook deduplication and stale invoice failures. PDF generation is also exercised. Playwright covers patient sessions, quiz gates, messaging, signed notes/addenda, responsive overflow, and selected axe accessibility checks at desktop and mobile sizes. These checks do not replace manual assistive-technology testing or vendor sandbox rehearsals.
 
 CI runs the same build and tests in `.github/workflows/check.yml`. Screenshots and traces are ignored build artifacts under `test-results/`.
+
+For a quick manual proposal walkthrough, start sample mode, choose **View team console**, open **Linda Miller**, then open **Plan & payments**. Use **Edit offer** to approve installments if needed, build a proposal from the knee template, and choose **Present on tablet**. Walk through the six sections, record the patient's decision, and hold **Show investment** to reveal the price. The **Chart** tab exercises draft, signature, and addendum behavior without contacting a provider.
 
 ## Deploy
 

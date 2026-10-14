@@ -7,7 +7,8 @@ This is an implementation and local verification record, **not production accept
 - [x] React/Vite patient and staff shells, supplied design language, local fake-data mode.
 - [x] Convex schema, role/scope checks, audited clinical reads and staff writes, admin provisioning, settings, seed and CI source.
 - [x] Local tests for patient isolation, unassigned PT/closer chart denial, staff expiry, revoked sessions, link expiry and reuse, cross-device token exchange, generic unknown-email responses and resend preservation.
-- [ ] Create separate hosted environments; regenerate Convex bindings and resolve any deployment-only validation differences.
+- [x] Deploy the isolated Convex staging backend to `posh-parrot-426`, inspect the empty database first, regenerate bindings, resolve generated-type failures, configure staging auth keys, and seed synthetic data.
+- [ ] Reauthenticate the Vercel CLI, link `groundedptp`, set `VITE_CONVEX_URL=https://posh-parrot-426.convex.cloud`, and deploy this frontend build.
 - [ ] Provision actual test inboxes for each role; exercise combined roles, individual device revocation and staff deactivation on the hosted app.
 - [ ] Configure hosted operational alerts, backup schedule and access-controlled support procedures.
 
@@ -41,7 +42,7 @@ Enable `ALLOW_REAL_PATIENTS` only after the gate is approved. The manual-intake 
 - [x] Local tests: price omitted from every client payload before reveal, transition rules, PP-10 arithmetic, closer-only reveal, tablet acceptance through the payment webhook, decline/send-to-portal, signing and revisions.
 - [ ] PP-7 and PP-14 must pass staging review before any real patient sees a proposal: inspect network payloads on the tablet before reveal; confirm the signed plan in the chart and its PDF.
 - [ ] Jimmy writes the first condition templates (the shipped four are placeholders). Counsel reviews template wording (PP-16).
-- [ ] Decide whether Jimmy, Blake, or both may edit price. Currently the PT sets it in the builder; the closer cannot change it after Produce.
+- [x] Assigned PTs and closers can edit price. Edits are audited and invalidate reveal, approval, consent, and unpaid Checkout attempts. Installments require closer/admin approval per proposal.
 - [ ] Time a returning user producing a proposal in 5 minutes or less (PP-17). Measure Produce-to-tablet latency on clinic Wi-Fi (PP-4: under 2 seconds).
 - [ ] Rehearse Accept and pay on the tablet and the texted payment link with Stripe test mode and the GHL sandbox.
 
@@ -62,10 +63,10 @@ Enable `ENABLE_RETENTION` only after acceptance. Referral awards separately rema
 
 - Provider adapters are implemented against documented shapes but have not been exercised with actual account configurations. GHL workflows must supply the documented envelope and source timestamps; they must send the returned deposit URL themselves.
 - Clinical document text is embedded in the PDF as UTF-8. The bundled DM Sans Latin font renders common English/Latin text; names or notes outside that glyph set require a broader approved font and visual review. Exact source remains attached rather than silently removed.
-- Current staff identity uses names/initials. Staff photo upload/display remains an outstanding UI integration; supply approved photos before finishing MS-1 acceptance.
+- Staff photo upload/display is implemented with initials as fallback. Approved final photos remain a production content input.
 - The public referral route uses live Convex. The sample referral link is illustrative and cannot submit a lead.
 - Complete end-to-end provider automation, signing-race tests, network-fault injection, exhaustive combined-role coverage and all browser engines remain release work. The automated suite is a foundation, not the full matrix in the approved plan.
-- The schema and helper contexts retain some dynamic types. Deploy-time Convex code generation and strict generated API integration must be reviewed before relying on backend type safety as a release control.
+- Authoritative Convex API bindings were regenerated on 2026-10-12. Public proposal payloads now use explicit validators; a few internal dynamic record helpers remain intentionally runtime-validated.
 - External email/SMS transport is at-least-once. Do not interpret deduplicated database jobs as proof of exactly-once provider delivery. Validate provider object recovery before replaying old financial jobs, including provider pagination limits.
 - The implementation scans small tables for the first-20-patient pilot. Before growth, add bounded pagination/retention of operational events and narrower aggregate queries; do not hard-delete clinical records.
 

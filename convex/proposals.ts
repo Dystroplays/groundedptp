@@ -55,7 +55,7 @@ export const presentation = query({
     );
     const firstName = a.target.name.split(" ")[0];
     if (!plan) return { firstName, proposal: null, investment: null };
-    const author = plan.authorId ? await ctx.db.get(plan.authorId) : null;
+    const author:any = plan.authorId ? await ctx.db.get(plan.authorId) : null;
     const priced=priceVisible(plan)?await quote(ctx,plan):plan;
     return {
       firstName,

@@ -7,15 +7,17 @@ export const sample = internalMutation({
   handler: async (ctx) => {
     if (process.env.ALLOW_REAL_PATIENTS === "true")
       throw new Error("Sample seed is disabled on live deployments.");
+    const sampleEmail=process.env.STAGING_TEST_EMAIL?.trim().toLowerCase()??"linda@example.test";
+    const samplePhone=process.env.STAGING_TEST_PHONE?.trim()??"";
     if (
       await ctx.db
         .query("patients")
-        .withIndex("by_email", (q) => q.eq("email", "linda@example.test"))
+        .withIndex("by_email", (q) => q.eq("email", sampleEmail))
         .unique()
     )
       return "Sample patient already exists.";
     const userId = await ctx.db.insert("users", {
-      email: "linda@example.test",
+      email: sampleEmail,
       name: "Linda Miller",
     });
     const staff = [];
@@ -37,8 +39,8 @@ export const sample = internalMutation({
     const patientId = await ctx.db.insert("patients", {
       userId,
       name: "Linda Miller",
-      email: "linda@example.test",
-      phone: "",
+      email: sampleEmail,
+      phone: samplePhone,
       stage: "pre_visit",
       status: "on_track",
       goal: "Back to pickleball with the grandkids.",

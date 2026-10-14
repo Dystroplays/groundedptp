@@ -93,7 +93,7 @@ export async function setting(ctx: any, key: string, fallback: any = null) {
     )?.value ?? fallback
   );
 }
-export async function forPatient(ctx: any, table: string, patientId: string) {
+export async function forPatient(ctx: any, table: string, patientId: string):Promise<any[]> {
   return ctx.db
     .query(table)
     .withIndex("by_patient", (q: any) => q.eq("patientId", patientId))

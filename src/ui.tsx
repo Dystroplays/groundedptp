@@ -712,10 +712,10 @@ export function Today() {
           </section>
           {d.visitSummaries.length > 0 && (
             <section className="pt-note">
-              <div className="avatar large">J</div>
+              {d.ptPhotoUrl?<img className="avatar large staff-photo" src={d.ptPhotoUrl} alt={d.ptName} />:<div className="avatar large">{d.ptName?.[0]??'PT'}</div>}
               <div>
                 <div className="section-top">
-                  <h3>A note from Jimmy</h3>
+                  <h3>A note from {d.ptName}</h3>
                   <span className="muted">
                     {dateLabel(d.visitSummaries.at(-1).at)}
                   </span>
@@ -772,6 +772,7 @@ function WeekStrip() {
             <span>{label}</span>
             <span
               className={`day-dot ${done ? "done" : ""} ${current ? "current" : ""}`}
+              role="img"
               aria-label={`${date.toDateString()}: ${done ? "completed" : current ? "today" : "not completed"}`}
             >
               {done ? <Check size={16} /> : date.getUTCDate()}
@@ -1320,7 +1321,7 @@ export function Messages() {
       />
       <div className="message-panel">
         <div className="thread-header">
-          <span className="avatar">J</span>
+          {d.ptPhotoUrl?<img className="avatar staff-photo" src={d.ptPhotoUrl} alt="" />:<span className="avatar">{d.ptName?.[0]??'PT'}</span>}
           <div>
             <strong>Your Grounded team</strong>
             <p>We reply the same business day.</p>

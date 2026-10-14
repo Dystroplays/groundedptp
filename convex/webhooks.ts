@@ -132,7 +132,7 @@ export const process = internalMutation({
           .unique();
         if (!old) {
           if (meta.kind === "plan") {
-            const plan = await ctx.db.get(meta.planId);
+            const plan:any = await ctx.db.get(meta.planId);
             if (
               !plan ||
               plan.patientId !== patientId ||
@@ -140,12 +140,12 @@ export const process = internalMutation({
               !["price_revealed", "sent_to_portal"].includes(plan.status)
             )
               throw new Error("Plan payment requires reconciliation.");
-            const agreement=meta.agreementId?await ctx.db.get(meta.agreementId):null;
+            const agreement:any=meta.agreementId?await ctx.db.get(meta.agreementId):null;
             if(!agreement||agreement._id!==plan.agreementId||agreement.planId!==plan._id||agreement.status!=='accepted')throw new Error('Payment agreement requires reconciliation.');
             const deposit=agreement.depositCreditCents,schedule=agreement;
             if (object.amount_total !== schedule.charges[0].amountCents)
               throw new Error("Payment amount mismatch.");
-            for(const allocation of agreement.deposits){const d=await ctx.db.get(allocation.id);if(!d||d.patientId!==patientId||d.appliedToId&&d.appliedToId!==plan._id||(d.amountCents-(d.refundedCents??0))!==allocation.amountCents)throw new Error('Deposit allocation requires reconciliation.');await ctx.db.patch(d._id,{appliedToId:plan._id});}
+            for(const allocation of agreement.deposits){const d:any=await ctx.db.get(allocation.id);if(!d||d.patientId!==patientId||d.appliedToId&&d.appliedToId!==plan._id||(d.amountCents-(d.refundedCents??0))!==allocation.amountCents)throw new Error('Deposit allocation requires reconciliation.');await ctx.db.patch(d._id,{appliedToId:plan._id});}
             // PP-11/PP-14: payment makes the proposal the plan of care; care starts now.
             await ctx.db.patch(plan._id, {
               status: "accepted",
@@ -252,7 +252,7 @@ export const process = internalMutation({
               )
               .unique()
           : null;
-        const schedule = meta.scheduleId
+        const schedule:any = meta.scheduleId
           ? await ctx.db.get(meta.scheduleId)
           : null;
         const patientId = member?.patientId ?? schedule?.patientId;
@@ -289,6 +289,10 @@ export const process = internalMutation({
               status: status === "paid" ? "active" : "failed",
               lastStripeEventAt:eventAt,
             });
+          if(member&&status==='paid'&&member.status==='failed'){
+            await event(ctx,patientId,'membership_activation_recovered');
+            await enqueue(ctx,'ghl_stage',`member-recovered:${member._id}`,{stage:'member'},patientId);
+          }
           if(status==='paid')await enqueue(ctx,'document',`receipt:${object.id}`,{kind:'receipt'},patientId);
           if(!old||old.status!==status)await event(ctx,patientId,status==='paid'?'payment_succeeded':'payment_failed');
         }
@@ -531,7 +535,7 @@ export const data = internalQuery({
     table: v.optional(v.string()),
     id: v.optional(v.string()),
   },
-  handler: async (ctx, { patientId, table, id }) => ({
+  handler: async (ctx, { patientId, table, id }):Promise<any> => ({
     patient: await ctx.db.get(patientId),
     record: id ? await ctx.db.get(id as any) : null,
     rows: table ? await forPatient(ctx, table, patientId) : [],

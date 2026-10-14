@@ -69,7 +69,7 @@ export const checkoutContext = internalQuery({
     }
     if (!patientActing) throw new Error("Patient authorization required.");
     if (kind === "membership") {
-      const member = await ctx.db.get(id as any);
+      const member:any = await ctx.db.get(id as any);
       if (
         !member ||
         member.patientId !== patientId ||
@@ -198,7 +198,7 @@ export const deliveryContext=internalQuery({args:{agreementId:v.id('paymentAgree
   if(!agreement||agreement.status!=='accepted'||plan?.agreementId!==agreementId||!['price_revealed','sent_to_portal'].includes(plan.status))return null;
   const deposits=await eligibleDeposits(ctx,agreement.patientId,plan._id);
   if(deposits.reduce((n:number,p:any)=>n+p.amountCents,0)!==agreement.depositCreditCents)throw new Error('Deposit balance changed; a new agreement is required.');
-  const patient=await ctx.db.get(agreement.patientId);return{patient,plan,agreement,deposit:agreement.depositCreditCents,staff:false};
+  const patient=await ctx.db.get(agreement.patientId);if(!patient)return null;return{patient,plan,agreement,deposit:agreement.depositCreditCents,staff:false};
 }});
 export const deliveryCheckout=internalAction({args:{agreementId:v.id('paymentAgreements')},handler:async(ctx,args):Promise<string|null>=>{
   const data=await ctx.runQuery(internal.payments.deliveryContext,args);if(!data)return null;

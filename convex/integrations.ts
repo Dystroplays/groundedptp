@@ -26,7 +26,7 @@ export const run = internalAction({
     const job = await ctx.runMutation(internal.jobs.claim, { id });
     if (!job) return;
     try {
-      const data = await ctx.runQuery(internal.jobs.context, { id });
+      const data:any = await ctx.runQuery(internal.jobs.context, { id });
       const p = data.patient,
         x = job.payload;
       if (job.kind === "webhook")
@@ -274,11 +274,11 @@ export const run = internalAction({
           job.key,
         );
       } else if (job.kind === "installment") {
-        const data = await ctx.runQuery(internal.webhooks.data, {
+        const data:any = await ctx.runQuery(internal.webhooks.data, {
             patientId: p._id,
             id: x.scheduleId,
           }),
-          s = data.record;
+          s:any = data.record;
         if (s.status === "paid") {
           await ctx.runMutation(internal.jobs.finish, { id });
           return;
@@ -344,11 +344,11 @@ export const run = internalAction({
             membershipId: x.membershipId,
           });
       } else if (job.kind === "membership_start") {
-        const data = await ctx.runQuery(internal.webhooks.data, {
+        const data:any = await ctx.runQuery(internal.webhooks.data, {
             patientId: p._id,
             id: x.membershipId,
           }),
-          m = data.record;
+          m:any = data.record;
         if (m.stripeSubscriptionId) {
           await ctx.runMutation(internal.jobs.finish, { id });
           return;
@@ -440,10 +440,10 @@ export const run = internalAction({
         });
       } else throw new Error("Unsupported integration job.");
       await ctx.runMutation(internal.jobs.finish, { id });
-    } catch {
+    } catch (error) {
       await ctx.runMutation(internal.jobs.finish, {
         id,
-        error: "Provider request failed",
+        error: error instanceof Error ? error.message : "Provider request failed",
       });
     }
   },

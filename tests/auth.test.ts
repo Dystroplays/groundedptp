@@ -13,6 +13,7 @@ async function setup() {
   vi.stubEnv("PAUBOX_API_URL", "https://mail.example.test/messages");
   vi.stubEnv("PAUBOX_API_KEY", "test-only");
   vi.stubEnv("EMAIL_FROM", "hello@example.test");
+  vi.stubEnv("STAGING_EMAIL_ALLOWLIST", "known@example.test");
   let emailed = "";
   const send = vi.fn(async (_url: any, init: any) => {
     emailed = JSON.parse(init.body).data.message.content["text/plain"];

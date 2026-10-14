@@ -82,6 +82,7 @@ export const update = mutation({
       v.literal("appointment"),
       v.literal("superbill"),
       v.literal("review_request"),
+      v.literal("referral_outcome"),
     ),
     payload: v.any(),
   },
@@ -91,8 +92,8 @@ export const update = mutation({
     if (operation === "owners") {
       if (!a.roles.some((r: string) => ["admin", "sdr", "closer"].includes(r)))
         throw new Error("Assignment access required.");
-      const pt = await ctx.db.get(x.ptId),
-        closer = await ctx.db.get(x.closerId);
+      const pt:any = await ctx.db.get(x.ptId),
+        closer:any = await ctx.db.get(x.closerId);
       if (
         !pt?.active ||
         !pt.roles.includes("pt") ||
@@ -101,10 +102,15 @@ export const update = mutation({
       )
         throw new Error("Choose an active PT and closer.");
       await ctx.db.patch(patientId, { ptId: pt._id, closerId: closer._id });
+    } else if(operation==='referral_outcome'){
+      if(!a.roles.some((r:string)=>['admin','sdr'].includes(r)))throw new Error('SDR or admin access required.');
+      const referral:any=await ctx.db.get(x.id);if(!referral||referral.referrerId!==patientId)throw new Error('Referral unavailable.');
+      if(!['invited','contacted','duplicate','ineligible'].includes(x.status))throw new Error('Choose a valid referral outcome.');
+      await ctx.db.patch(referral._id,{status:x.status});await audit(ctx,a.userId,'referral_outcome','referrals',referral._id);
     } else if (operation === "appointment") {
       if (!a.roles.some((r: string) => ["admin", "sdr"].includes(r)))
         throw new Error("SDR or admin access required.");
-      const appointment = await ctx.db.get(x.id);
+      const appointment:any = await ctx.db.get(x.id);
       if (
         !appointment ||
         appointment.patientId !== patientId ||
